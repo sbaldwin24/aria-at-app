@@ -63,7 +63,8 @@ class ConfigureActiveRuns extends Component {
             selectedVersion: testVersionId,
             name: '',
             runTechnologyRows: [{}], // list of {at_id, at_version, browser_id, browser_version}
-            exampleSelected: {}
+            exampleSelected: {},
+            showChangeModal: false
         };
 
         if (activeRunConfiguration && testVersionId) {
@@ -84,6 +85,8 @@ class ConfigureActiveRuns extends Component {
         this.deleteTechnologyRow = this.deleteTechnologyRow.bind(this);
         this.addTechnologyRow = this.addTechnologyRow.bind(this);
         this.selectExample = this.selectExample.bind(this);
+        this.showChanges = this.showChanges.bind(this);
+        this.closeChanges = this.closeChanges.bind(this);
         this.configureActiveRuns = this.configureActiveRuns.bind(this);
     }
 
@@ -136,8 +139,19 @@ class ConfigureActiveRuns extends Component {
         });
     }
 
+    showChanges() {
+        this.setState({
+            showChangeModal: true
+        });
+    }
+
+    closeChanges() {
+        this.setState({
+            showChangeModal: false
+        });
+    }
+
     configureActiveRuns() {
-        return <ConfigurationModal />
         const { dispatch, testVersions } = this.props;
         let versionData = testVersions.filter(
             version => version.id === this.state.selectedVersion
@@ -187,6 +201,10 @@ class ConfigureActiveRuns extends Component {
             apg_example_ids: apgExampleIds,
             at_browser_pairs: atBrowserPairs
         };
+
+        this.setState({
+            showChangeModal: false
+        });
 
         dispatch(saveRunConfiguration(config));
 
@@ -447,11 +465,12 @@ class ConfigureActiveRuns extends Component {
                 <div>
                     <Button
                         disabled={!enableSaveButton}
-                        onClick={this.configureActiveRuns}
+                        onClick={this.showChanges}
                     >
                         Update Active Run Configuration
                     </Button>
                 </div>
+            <ConfigurationModal show={this.state.showChangeModal} handleClose={this.closeChanges} saveRunConfiguration={this.configureActiveRuns} />
             </Fragment>
         );
     }
