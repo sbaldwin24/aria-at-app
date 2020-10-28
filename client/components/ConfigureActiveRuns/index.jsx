@@ -8,6 +8,7 @@ import {
     getTestVersions
 } from '../../actions/runs';
 import ConfigureTechnologyRow from '@components/ConfigureTechnologyRow';
+import ConfigurationModal from '@components/ConfigurationModal';
 
 function selectExamples(testVersion, activeRunConfiguration) {
     let exampleSelected = {};
@@ -136,6 +137,7 @@ class ConfigureActiveRuns extends Component {
     }
 
     configureActiveRuns() {
+        return <ConfigurationModal />
         const { dispatch, testVersions } = this.props;
         let versionData = testVersions.filter(
             version => version.id === this.state.selectedVersion
