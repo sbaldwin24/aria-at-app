@@ -66,12 +66,13 @@ class ConfigureActiveRuns extends Component {
             runTechnologyRows: [{}], // list of {at_id, at_version, browser_id, browser_version}
             exampleSelected: {},
             showChangeModal: false,
-            configurationChanges: {}
+            activeVersionChanged: false,
+            configurationChanges: []
         };
 
         if (activeRunConfiguration && testVersionId) {
             this.state.runTechnologyRows = getDefaultsTechCombinations(
-                testVersions[0],
+                testVersions.filter(version => activeRunConfiguration.active_test_version.id === version.id)[0],
                 activeRunConfiguration
             );
             this.state.exampleSelected = selectExamples(
@@ -233,6 +234,8 @@ class ConfigureActiveRuns extends Component {
             version => version.id === parseInt(event.currentTarget.value)
         )[0];
 
+        const activeVersionChanged = activeRunConfiguration.active_test_version.id !== versionData.id;
+
         this.setState({
             selectedVersion: versionData.id,
             assignedTesters: [],
@@ -244,11 +247,10 @@ class ConfigureActiveRuns extends Component {
                 versionData,
                 activeRunConfiguration
             ),
-            configurationChanges: {
-                version: Object.values(activeRunsById).filter(
+            activeVersionChanged,
+            configurationChanges: activeVersionChanged ? Object.values(activeRunsById).filter(
                     run => run.run_status === 'draft'
-                )
-            }
+                ) : []
         });
     }
 
@@ -278,22 +280,22 @@ class ConfigureActiveRuns extends Component {
         const { activeRunsById } = this.props;
         let newRunTechnologies = [...this.state.runTechnologyRows];
         const deletedRow = newRunTechnologies.splice(index, 1).pop();
-        this.setState(prevState => ({
+
+        
+        this.setState(prevState => {
+            let rows = prevState.configurationChanges || [];
+            return {
             runTechnologyRows: newRunTechnologies,
-            configurationChanges: {
-                ...prevState.configurationChanges,
-                techRow: [
-                    ...prevState.configurationChanges.techRow,
+            configurationChanges: !prevState.activeVersionChanged ? rows.concat(
                     Object.values(activeRunsById).filter(
                         run =>
-                            run.at_version === deletedRow.at_version &&
-                            run.browser_version ===
-                                deletedRow.browser_version &&
+                            run.at_id === deletedRow.at_id &&
+                            run.browser_id ===
+                                deletedRow.browser_id &&
                             run.run_status === 'draft'
                     )
-                ]
-            }
-        }));
+                ) : prevState.configurationChanges
+        }});
     }
 
     renderTestVersionSelect() {
