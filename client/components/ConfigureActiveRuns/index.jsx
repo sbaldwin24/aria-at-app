@@ -141,12 +141,33 @@ class ConfigureActiveRuns extends Component {
     }
 
     selectExample(event) {
+        const { activeRunsById } = this.props;
         const value = event.target.checked;
         const apgExampleId = parseInt(event.target.name);
-        this.setState({
-            exampleSelected: {
-                ...this.state.exampleSelected,
-                [apgExampleId]: value
+        
+        this.setState(prevState => {
+            let configurationChanges = Object.values(activeRunsById).filter(run => run.apg_example_id === apgExampleId && run.run_status === 'draft');
+            if (!this.state.activeVersionChanged) {
+                if (value === false) {
+                    configurationChanges = [...prevState.configurationChanges, ...configurationChanges];
+                } else {
+                    let oldConfigList = prevState.configurationChanges;
+                    console.log(oldConfigList)
+                    configurationChanges = 
+                        oldConfigList.reduce((acc, prevConfig) => {
+                            if(configurationChanges.find(config => config.id === prevConfig.id)) {
+                                acc = acc.filter(oldConfig => oldConfig.id !== prevConfig.id);
+                            }
+                            return acc;
+                        }, oldConfigList)
+                }
+            }
+            return {
+                exampleSelected: {
+                    ...this.state.exampleSelected,
+                    [apgExampleId]: value
+                },
+                configurationChanges
             }
         });
     }
