@@ -93,7 +93,12 @@ class ConfigureActiveRuns extends Component {
     }
 
     componentDidMount() {
-        const { dispatch, testVersions, activeRunConfiguration, activeRunsById } = this.props;
+        const {
+            dispatch,
+            testVersions,
+            activeRunConfiguration,
+            activeRunsById
+        } = this.props;
         if (!testVersions) {
             dispatch(getTestVersions());
         }
@@ -218,7 +223,11 @@ class ConfigureActiveRuns extends Component {
     }
 
     handleVersionChange(event) {
-        const { testVersions, activeRunConfiguration, activeRunsById } = this.props;
+        const {
+            testVersions,
+            activeRunConfiguration,
+            activeRunsById
+        } = this.props;
 
         let versionData = testVersions.filter(
             version => version.id === parseInt(event.currentTarget.value)
@@ -236,7 +245,9 @@ class ConfigureActiveRuns extends Component {
                 activeRunConfiguration
             ),
             configurationChanges: {
-                version: Object.values(activeRunsById).filter(run => run.run_status === 'draft')
+                version: Object.values(activeRunsById).filter(
+                    run => run.run_status === 'draft'
+                )
             }
         });
     }
@@ -264,11 +275,25 @@ class ConfigureActiveRuns extends Component {
     }
 
     deleteTechnologyRow(index) {
+        const { activeRunsById } = this.props;
         let newRunTechnologies = [...this.state.runTechnologyRows];
-        newRunTechnologies.splice(index, 1);
-        this.setState({
-            runTechnologyRows: newRunTechnologies
-        });
+        const deletedRow = newRunTechnologies.splice(index, 1).pop();
+        this.setState(prevState => ({
+            runTechnologyRows: newRunTechnologies,
+            configurationChanges: {
+                ...prevState.configurationChanges,
+                techRow: [
+                    ...prevState.configurationChanges.techRow,
+                    Object.values(activeRunsById).filter(
+                        run =>
+                            run.at_version === deletedRow.at_version &&
+                            run.browser_version ===
+                                deletedRow.browser_version &&
+                            run.run_status === 'draft'
+                    )
+                ]
+            }
+        }));
     }
 
     renderTestVersionSelect() {
@@ -479,7 +504,11 @@ class ConfigureActiveRuns extends Component {
                         Update Active Run Configuration
                     </Button>
                 </div>
-            <ConfigurationModal show={this.state.showChangeModal} handleClose={this.closeChanges} saveRunConfiguration={this.configureActiveRuns} />
+                <ConfigurationModal
+                    show={this.state.showChangeModal}
+                    handleClose={this.closeChanges}
+                    saveRunConfiguration={this.configureActiveRuns}
+                />
             </Fragment>
         );
     }
@@ -487,6 +516,7 @@ class ConfigureActiveRuns extends Component {
 
 ConfigureActiveRuns.propTypes = {
     activeRunConfiguration: PropTypes.object,
+    activeRunsById: PropTypes.object,
     testVersions: PropTypes.array,
     dispatch: PropTypes.func
 };

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Button, Modal } from 'react-bootstrap';
+import PropTypes from 'prop-types';
 
 class ConfigurationModal extends Component {
     render() {
@@ -7,20 +8,26 @@ class ConfigurationModal extends Component {
         return (
             <Modal show={show} onHide={handleClose}>
                 <Modal.Header closeButton>
-                <Modal.Title>Modal heading</Modal.Title>
+                    <Modal.Title>Modal heading</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>Woohoo, you're reading this text in a modal!</Modal.Body>
+                <Modal.Body>Hi</Modal.Body>
                 <Modal.Footer>
-                <Button variant="secondary" onClick={handleClose}>
-                    Close
-                </Button>
-                <Button variant="primary" onClick={saveRunConfiguration}>
-                    Save Changes
-                </Button>
+                    <Button variant="secondary" onClick={handleClose}>
+                        Close
+                    </Button>
+                    <Button variant="primary" onClick={saveRunConfiguration}>
+                        Save Changes
+                    </Button>
                 </Modal.Footer>
             </Modal>
-        )
+        );
     }
 }
+
+ConfigurationModal.propTypes = {
+    show: PropTypes.bool,
+    handleClose: PropTypes.func,
+    saveRunConfiguration: PropTypes.func
+};
 
 export default ConfigurationModal;
