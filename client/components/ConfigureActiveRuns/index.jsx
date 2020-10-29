@@ -5,7 +5,8 @@ import { Table, Form, Button, Row, Col } from 'react-bootstrap';
 import {
     saveRunConfiguration,
     getActiveRunConfiguration,
-    getTestVersions
+    getTestVersions,
+    getActiveRuns
 } from '../../actions/runs';
 import ConfigureTechnologyRow from '@components/ConfigureTechnologyRow';
 import ConfigurationModal from '@components/ConfigurationModal';
@@ -64,7 +65,8 @@ class ConfigureActiveRuns extends Component {
             name: '',
             runTechnologyRows: [{}], // list of {at_id, at_version, browser_id, browser_version}
             exampleSelected: {},
-            showChangeModal: false
+            showChangeModal: false,
+            configurationChanges: {}
         };
 
         if (activeRunConfiguration && testVersionId) {
@@ -91,12 +93,16 @@ class ConfigureActiveRuns extends Component {
     }
 
     componentDidMount() {
-        const { dispatch, testVersions, activeRunConfiguration } = this.props;
+        const { dispatch, testVersions, activeRunConfiguration, activeRunsById } = this.props;
         if (!testVersions) {
             dispatch(getTestVersions());
         }
         if (!activeRunConfiguration) {
             dispatch(getActiveRunConfiguration());
+        }
+
+        if (!activeRunsById) {
+            dispatch(getActiveRuns());
         }
     }
 
@@ -212,7 +218,7 @@ class ConfigureActiveRuns extends Component {
     }
 
     handleVersionChange(event) {
-        const { testVersions, activeRunConfiguration } = this.props;
+        const { testVersions, activeRunConfiguration, activeRunsById } = this.props;
 
         let versionData = testVersions.filter(
             version => version.id === parseInt(event.currentTarget.value)
@@ -228,7 +234,10 @@ class ConfigureActiveRuns extends Component {
             runTechnologyRows: getDefaultsTechCombinations(
                 versionData,
                 activeRunConfiguration
-            )
+            ),
+            configurationChanges: {
+                version: Object.values(activeRunsById).filter(run => run.run_status === 'draft')
+            }
         });
     }
 
@@ -483,8 +492,8 @@ ConfigureActiveRuns.propTypes = {
 };
 
 const mapStateToProps = state => {
-    const { activeRunConfiguration, testVersions } = state.runs;
-    return { testVersions, activeRunConfiguration };
+    const { activeRunConfiguration, testVersions, activeRunsById } = state.runs;
+    return { testVersions, activeRunConfiguration, activeRunsById };
 };
 
 export default connect(mapStateToProps)(ConfigureActiveRuns);
