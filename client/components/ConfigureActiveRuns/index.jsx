@@ -544,11 +544,7 @@ class ConfigureActiveRuns extends Component {
                 <div>
                     <Button
                         disabled={!enableSaveButton}
-                        onClick={
-                            this.state.configurationChanges.length > 0
-                                ? this.showChanges
-                                : this.configureActiveRuns
-                        }
+                        onClick={this.state.configurationChanges.length > 0 ? this.showChanges : this.configureActiveRuns}
                     >
                         Update Active Run Configuration
                     </Button>

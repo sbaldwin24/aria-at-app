@@ -16,12 +16,14 @@ class ConfigurationModal extends Component {
                     <Modal.Title>Update Active Test Runs</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <h1>
+                    <p>
+                        <b>
                         The draft results for the following test plans will be
                         lost:
-                    </h1>
+                        </b>
+                    </p>
                     {configurationChanges.map(
-                        runDeleted => `${runDeleted.apg_example_name}`
+                        runDeleted => `${runDeleted.apg_example_name} - ${runDeleted.at_name} ${runDeleted.at_version} with ${runDeleted.browser_name} ${runDeleted.browser_version}\n`
                     )}
                 </Modal.Body>
                 <Modal.Footer>
