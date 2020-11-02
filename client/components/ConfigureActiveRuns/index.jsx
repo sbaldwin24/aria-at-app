@@ -56,10 +56,10 @@ class ConfigureActiveRuns extends Component {
         super(props);
         const { testVersions, activeRunConfiguration } = props;
 
-        let testVersionId =
-            testVersions && testVersions.length
-                ? testVersions[0].id
-                : undefined;
+        let testVersionId = activeRunConfiguration
+            ? activeRunConfiguration.active_test_version.id
+            : undefined;
+
         this.state = {
             selectedVersion: testVersionId,
             name: '',
@@ -72,11 +72,15 @@ class ConfigureActiveRuns extends Component {
 
         if (activeRunConfiguration && testVersionId) {
             this.state.runTechnologyRows = getDefaultsTechCombinations(
-                testVersions.filter(version => activeRunConfiguration.active_test_version.id === version.id)[0],
+                testVersions.filter(
+                    version =>
+                        activeRunConfiguration.active_test_version.id ===
+                        version.id
+                )[0],
                 activeRunConfiguration
             );
             this.state.exampleSelected = selectExamples(
-                testVersions[0],
+                activeRunConfiguration.active_test_version,
                 activeRunConfiguration
             );
         }
@@ -120,8 +124,10 @@ class ConfigureActiveRuns extends Component {
             nextProps.activeRunConfiguration &&
             nextProps.testVersions
         ) {
-            let testVersionId = nextProps.testVersions[0].id;
-            let testVersion = nextProps.testVersions[0];
+            let testVersionId =
+                nextProps.activeRunConfiguration.active_test_version.id;
+            let testVersion =
+                nextProps.activeRunConfiguration.active_test_version;
 
             let exampleSelected = selectExamples(
                 testVersion,
@@ -144,22 +150,36 @@ class ConfigureActiveRuns extends Component {
         const { activeRunsById } = this.props;
         const value = event.target.checked;
         const apgExampleId = parseInt(event.target.name);
-        
+
         this.setState(prevState => {
-            let configurationChanges = Object.values(activeRunsById).filter(run => run.apg_example_id === apgExampleId && run.run_status === 'draft');
+            let configurationChanges = Object.values(activeRunsById).filter(
+                run =>
+                    run.apg_example_id === apgExampleId &&
+                    run.run_status === 'draft'
+            );
             if (!this.state.activeVersionChanged) {
                 if (value === false) {
-                    configurationChanges = [...prevState.configurationChanges, ...configurationChanges];
+                    configurationChanges = [
+                        ...prevState.configurationChanges,
+                        ...configurationChanges
+                    ];
                 } else {
                     let oldConfigList = prevState.configurationChanges;
-                    console.log(oldConfigList)
-                    configurationChanges = 
-                        oldConfigList.reduce((acc, prevConfig) => {
-                            if(configurationChanges.find(config => config.id === prevConfig.id)) {
-                                acc = acc.filter(oldConfig => oldConfig.id !== prevConfig.id);
+                    configurationChanges = oldConfigList.reduce(
+                        (acc, prevConfig) => {
+                            if (
+                                configurationChanges.find(
+                                    config => config.id === prevConfig.id
+                                )
+                            ) {
+                                acc = acc.filter(
+                                    oldConfig => oldConfig.id !== prevConfig.id
+                                );
                             }
                             return acc;
-                        }, oldConfigList)
+                        },
+                        oldConfigList
+                    );
                 }
             }
             return {
@@ -168,7 +188,7 @@ class ConfigureActiveRuns extends Component {
                     [apgExampleId]: value
                 },
                 configurationChanges
-            }
+            };
         });
     }
 
@@ -255,7 +275,8 @@ class ConfigureActiveRuns extends Component {
             version => version.id === parseInt(event.currentTarget.value)
         )[0];
 
-        const activeVersionChanged = activeRunConfiguration.active_test_version.id !== versionData.id;
+        const activeVersionChanged =
+            activeRunConfiguration.active_test_version.id !== versionData.id;
 
         this.setState({
             selectedVersion: versionData.id,
@@ -269,9 +290,11 @@ class ConfigureActiveRuns extends Component {
                 activeRunConfiguration
             ),
             activeVersionChanged,
-            configurationChanges: activeVersionChanged ? Object.values(activeRunsById).filter(
-                    run => run.run_status === 'draft'
-                ) : []
+            configurationChanges: activeVersionChanged
+                ? Object.values(activeRunsById).filter(
+                      run => run.run_status === 'draft'
+                  )
+                : []
         });
     }
 
@@ -302,21 +325,22 @@ class ConfigureActiveRuns extends Component {
         let newRunTechnologies = [...this.state.runTechnologyRows];
         const deletedRow = newRunTechnologies.splice(index, 1).pop();
 
-        
         this.setState(prevState => {
             let rows = prevState.configurationChanges || [];
             return {
-            runTechnologyRows: newRunTechnologies,
-            configurationChanges: !prevState.activeVersionChanged ? rows.concat(
-                    Object.values(activeRunsById).filter(
-                        run =>
-                            run.at_id === deletedRow.at_id &&
-                            run.browser_id ===
-                                deletedRow.browser_id &&
-                            run.run_status === 'draft'
-                    )
-                ) : prevState.configurationChanges
-        }});
+                runTechnologyRows: newRunTechnologies,
+                configurationChanges: !prevState.activeVersionChanged
+                    ? rows.concat(
+                          Object.values(activeRunsById).filter(
+                              run =>
+                                  run.at_id === deletedRow.at_id &&
+                                  run.browser_id === deletedRow.browser_id &&
+                                  run.run_status === 'draft'
+                          )
+                      )
+                    : prevState.configurationChanges
+            };
+        });
     }
 
     renderTestVersionSelect() {
