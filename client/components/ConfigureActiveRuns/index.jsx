@@ -255,11 +255,9 @@ class ConfigureActiveRuns extends Component {
             at_browser_pairs: atBrowserPairs
         };
 
-        this.setState({
-            showChangeModal: false
-        });
-
         dispatch(saveRunConfiguration(config));
+
+        this.closeChanges();
 
         alert('You saved results! (...what should we do after saving?)');
     }
@@ -546,7 +544,11 @@ class ConfigureActiveRuns extends Component {
                 <div>
                     <Button
                         disabled={!enableSaveButton}
-                        onClick={this.showChanges}
+                        onClick={
+                            this.state.configurationChanges.length > 0
+                                ? this.showChanges
+                                : this.configureActiveRuns
+                        }
                     >
                         Update Active Run Configuration
                     </Button>
@@ -555,6 +557,7 @@ class ConfigureActiveRuns extends Component {
                     show={this.state.showChangeModal}
                     handleClose={this.closeChanges}
                     saveRunConfiguration={this.configureActiveRuns}
+                    configurationChanges={this.state.configurationChanges}
                 />
             </Fragment>
         );
